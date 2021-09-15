@@ -1,0 +1,45 @@
+name: Notify to WebHook
+inputs:
+  job_status: # value of input
+    description: 'Job Status'
+    required: true
+    default: ''
+  job_link: # value of input
+    description: 'Job Link'
+    required: true
+    default: ''
+  pretext: # value of input
+    description: 'Pre Text'
+    required: true
+    default: ''
+  actor: # value of input
+    description: 'Actor'
+    required: true
+    default: ''
+  message: # value of input
+    description: 'Message'
+    required: true
+    default: ''
+  webhook_url: # value of input
+    description: 'WebHook URL'
+    required: true
+    default: ''
+runs:
+  using: composite
+  steps:
+    - run: |
+        if [ ${{ inputs.job_status }} = "success" ];then COLOR="good";else COLOR="danger";fi
+        jq -n --arg jobLink ${{ inputs.job_link }} --arg color "${COLOR}" '{
+          attachments: [{
+            pretext: "${{ inputs.pretext }} *${{ inputs.job_status }}*",
+            color: $color,
+            author_name: "${{ inputs.actor }}",
+            title: $jobLink,
+            title_link: $jobLink,
+            "fields": [
+              {
+                "value": "${{ inputs.message }}"
+              }]
+          }]
+        }' | curl -H 'Content-Type: application/json' -d @- ${{ inputs.webhook_url }}
+      shell: bash
