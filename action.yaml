@@ -1,10 +1,10 @@
 name: Notify to WebHook
 inputs:
-  job_status: # value of input
-  job_link: # value of input
-  pretext: # value of input
-  actor: # value of input
-  message: # value of input
+  job_status:  # value of input
+  job_link:  # value of input
+  pretext:  # value of input
+  actor:  # value of input
+  message:  # value of input
 runs:
   using: composite
   steps:
