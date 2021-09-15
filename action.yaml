@@ -17,3 +17,4 @@ runs:
               }]
           }]
         }' | curl -H 'Content-Type: application/json' -d @- ${{ inputs.webhook_url }}
+      shell: bash
