@@ -1,0 +1,45 @@
+name: Notify to Slack
+inputs:
+  job_status: # value of input
+    description: 'Job Status'
+    required: true
+    default: ''
+  message: # value of input
+    description: 'Message'
+    required: true
+    default: ''
+  webhook_url: # value of input
+    description: 'WebHook URL'
+    required: true
+    default: ''
+runs:
+  using: composite
+  steps:
+    - name: Set Status Value
+      run: |
+        if [ ${{ inputs.job_status }} = "success" ] ; then
+          echo "::set-output name=COLOR::good" && echo "::set-output name=STATUS:::white_check_mark:"
+        elif [ ${{ inputs.job_status }} = "failure" ] ; then
+          echo "::set-output name=COLOR::danger" && echo "::set-output name=STATUS:::no_entry:"
+        else
+          echo "::set-output name=COLOR::warning" && echo "::set-output name=STATUS:::warning:"
+        fi
+      if: always()
+      id: step-status
+      shell: bash
+    - name: Notify Slack
+      uses: 8398a7/action-slack@v3.10.0
+      with:
+        status: custom
+        fields: workflow,job,commit,repo,ref,author,took
+        custom_payload: |
+          {
+            attachments: [{
+              color: '${{ steps.step-status.outputs.COLOR }}',
+              text: `${{ steps.step-status.outputs.STATUS }} *${process.env.AS_WORKFLOW}  ${{ job.status }}*\n${{ inputs.message }} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} \nby ${process.env.AS_AUTHOR}`,
+            }]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ inputs.webhook_url }}
+      if: always()
+      shell: bash
