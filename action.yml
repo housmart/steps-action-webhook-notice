@@ -8,6 +8,10 @@ inputs:
     description: 'Message'
     required: true
     default: ''
+  part: # value of input
+    description: 'Part'
+    required: false
+    default: ''
   webhook_url: # value of input
     description: 'WebHook URL'
     required: true
@@ -35,7 +39,7 @@ runs:
           {
             attachments: [{
               color: '${{ steps.step-status.outputs.COLOR }}',
-              text: `${{ steps.step-status.outputs.STATUS }} *${process.env.AS_WORKFLOW}  ${{ job.status }}*\n${{ inputs.message }} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} \nby ${process.env.AS_AUTHOR}`,
+              text: `${{ steps.step-status.outputs.STATUS }} *${process.env.AS_WORKFLOW}  ${{ job.status }}* ${{ inputs.part }}\n${{ inputs.message }} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} \nby ${process.env.AS_AUTHOR}`,
             }]
           }
       env:
