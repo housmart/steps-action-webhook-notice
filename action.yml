@@ -24,7 +24,6 @@ runs:
         else
           echo "::set-output name=COLOR::warning" && echo "::set-output name=STATUS:::warning:"
         fi
-      if: always()
       id: step-status
       shell: bash
     - name: Notify Slack
@@ -41,5 +40,3 @@ runs:
           }
       env:
         SLACK_WEBHOOK_URL: ${{ inputs.webhook_url }}
-      if: always()
-      shell: bash
