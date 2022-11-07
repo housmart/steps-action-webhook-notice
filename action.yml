@@ -31,7 +31,7 @@ runs:
       id: step-status
       shell: bash
     - name: Notify Slack
-      uses: 8398a7/action-slack@v3.10.0
+      uses: 8398a7/action-slack@v3.14.0
       with:
         status: custom
         fields: workflow,job,commit,repo,ref,author,took
