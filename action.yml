@@ -22,13 +22,12 @@ runs:
     - name: Set Status Value
       run: |
         if [ ${{ inputs.job_status }} = "success" ] ; then
-          echo "::set-output name=COLOR::good" && echo "::set-output name=STATUS:::white_check_mark:"
+          echo "COLOR=good" >> $GITHUB_ENV && echo "STATUS=:white_check_mark:" >> $GITHUB_ENV
         elif [ ${{ inputs.job_status }} = "failure" ] ; then
-          echo "::set-output name=COLOR::danger" && echo "::set-output name=STATUS:::no_entry:"
+          echo "COLOR=danger" >> $GITHUB_ENV && echo "STATUS=:no_entry:" >> $GITHUB_ENV
         else
-          echo "::set-output name=COLOR::warning" && echo "::set-output name=STATUS:::warning:"
+          echo "COLOR=warning" >> $GITHUB_ENV && echo "STATUS=:warning:" >> $GITHUB_ENV
         fi
-      id: step-status
       shell: bash
     - name: Notify Slack
       uses: 8398a7/action-slack@v3.14.0
@@ -38,8 +37,8 @@ runs:
         custom_payload: |
           {
             attachments: [{
-              color: '${{ steps.step-status.outputs.COLOR }}',
-              text: `${{ steps.step-status.outputs.STATUS }} *${process.env.AS_WORKFLOW}  ${{ job.status }}* ${{ inputs.part }}\n${{ inputs.message }} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} \nby ${process.env.AS_AUTHOR}`,
+              color: '${{ env.COLOR }}',
+              text: `${{ env.STATUS }} *${process.env.AS_WORKFLOW}  ${{ job.status }}* ${{ inputs.part }}\n${{ inputs.message }} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} \nby ${process.env.AS_AUTHOR}`,
             }]
           }
       env:
