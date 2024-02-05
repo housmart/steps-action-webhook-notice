@@ -1,5 +1,9 @@
 name: Notify to Slack
 inputs:
+  notify_type: # value of input
+    description: 'Notify Type'
+    required: true
+    default: ''
   job_status: # value of input
     description: 'Job Status'
     required: true
@@ -12,6 +16,10 @@ inputs:
     description: 'Part'
     required: false
     default: ''
+  color: # value of input
+    description: 'Color'
+    required: true
+    default: ''
   webhook_url: # value of input
     description: 'WebHook URL'
     required: true
@@ -19,27 +27,25 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Set Status Value
-      run: |
-        if [ ${{ inputs.job_status }} = "success" ] ; then
-          echo "COLOR=good" >> $GITHUB_ENV && echo "STATUS=:white_check_mark:" >> $GITHUB_ENV
-        elif [ ${{ inputs.job_status }} = "failure" ] ; then
-          echo "COLOR=danger" >> $GITHUB_ENV && echo "STATUS=:no_entry:" >> $GITHUB_ENV
-        else
-          echo "COLOR=warning" >> $GITHUB_ENV && echo "STATUS=:warning:" >> $GITHUB_ENV
-        fi
-      shell: bash
-    - name: Notify Slack
-      uses: 8398a7/action-slack@v3.16.2
+    - name: Test Notify Slack
+      uses: ./.github/actions/test_notify
+      if: ${{ inputs.notify_type == 'test_notify' }}
       with:
-        status: custom
-        fields: workflow,job,commit,repo,ref,author,took
-        custom_payload: |
-          {
-            attachments: [{
-              color: '${{ env.COLOR }}',
-              text: `${{ env.STATUS }} *${process.env.AS_WORKFLOW}  ${{ job.status }}* ${{ inputs.part }}\n${{ inputs.message }} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} \nby ${process.env.AS_AUTHOR}`,
-            }]
-          }
-      env:
-        SLACK_WEBHOOK_URL: ${{ inputs.webhook_url }}
+        job_status: ${{ inputs.job_status }}
+        message: ${{ inputs.message }}
+        part: ${{ inputs.part }}
+        webhook_url: ${{ inputs.webhook_url }}
+    - name: All Test Notify Slack
+      uses: ./.github/actions/all_test_notify
+      if: ${{ inputs.notify_type == 'all_test_notify' }}
+      with:
+        job_status: ${{ inputs.job_status }}
+        part: ${{ inputs.part }}
+        webhook_url: ${{ inputs.webhook_url }}
+    - name: Notify Slack
+      uses: ./.github/actions/notify_slack
+      if: ${{ inputs.notify_type == 'notify_slack' }}
+      with:
+        color: ${{ inputs.color }}
+        message: ${{ inputs.message }}
+        webhook_url: ${{ inputs.webhook_url }}

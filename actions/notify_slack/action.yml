@@ -1,0 +1,30 @@
+name: Notify to Slack
+inputs:
+  color: # value of input
+    description: 'Color'
+    required: true
+    default: ''
+  message: # value of input
+    description: 'Message'
+    required: true
+    default: ''
+  webhook_url: # value of input
+    description: 'WebHook URL'
+    required: true
+    default: ''
+runs:
+  using: composite
+  steps:
+    - name: Notify Slack
+      uses: 8398a7/action-slack@v3.16.2
+      with:
+        status: custom
+        custom_payload: |
+          {
+            attachments: [{
+              color: inputs.color,
+              text: inputs.message,
+            }]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ inputs.webhook_url }}
